@@ -101,14 +101,14 @@ resource "aws_iam_role_policy" "example" {
       "Action": [
         "ec2:CreateNetworkInterfacePermission"
       ],
-      "Resource": "arn:aws:ec2:eu-central-1:366915744137:network-interface/*",
+      "Resource": "arn:aws:ec2:REGION:ACCOUNT_ID:network-interface/*",
       "Condition": {
         "StringEquals": {
           "ec2:AuthorizedService": "codebuild.amazonaws.com"
         },
         "ArnEquals": {
           "ec2:Subnet": [
-            "arn:aws:ec2:eu-central-1:366915744137:subnet/*"
+            "arn:aws:ec2:REGION:ACCOUNT_ID:subnet/*"
           ]
         }
       }
