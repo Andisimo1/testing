@@ -7,6 +7,23 @@ resource "aws_s3_bucket_acl" "example" {
   acl    = "private"
 }
 
+resource "null_resource" "import_source_credentials" {
+
+  
+  triggers = {
+    github_oauth_token = var.github_token
+  }
+
+  provisioner "local-exec" {
+    command = <<EOF
+      aws --region ${var.region} codebuild import-source-credentials \
+                                                             --token ${var.github_token} \
+                                                             --server-type GITHUB \
+                                                             --auth-type PERSONAL_ACCESS_TOKEN
+EOF
+  }
+}
+
 resource "aws_security_group" "codebuild_sg" {
   name        = "allow_vpc_connectivity"
   description = "Allow Codebuild connectivity to all the resources within our VPC"
@@ -102,6 +119,7 @@ POLICY
 }
 
 resource "aws_codebuild_project" "example" {
+  depends_on = [null_resource.import_source_credentials]
   name          = "test-project"
   description   = "test_codebuild_project"
   build_timeout = "5"
@@ -117,20 +135,15 @@ resource "aws_codebuild_project" "example" {
   }
 
   environment {
-    compute_type                = "BUILD_GENERAL1_SMALL"
-    image                       = "aws/codebuild/standard:4.0"
-    type                        = "LINUX_CONTAINER"
+    compute_type = "BUILD_GENERAL1_SMALL"
+    image = "aws/codebuild/standard:4.0"
+    type = "LINUX_CONTAINER"
+    privileged_mode = true
     image_pull_credentials_type = "CODEBUILD"
 
     environment_variable {
-      name  = "SOME_KEY1"
-      value = "SOME_VALUE1"
-    }
-
-    environment_variable {
-      name  = "SOME_KEY2"
-      value = "SOME_VALUE2"
-      type  = "PARAMETER_STORE"
+      name = "CI"
+      value = "true"
     }
   }
 
@@ -148,7 +161,7 @@ resource "aws_codebuild_project" "example" {
 
   source {
     type            = "GITHUB"
-    location        = "https://github.com/Andisimo1/test.git"
+    location        = "https://github.com/Andisimo1/CatsApp-DockerHub.git"
     git_clone_depth = 1
 
     git_submodules_config {
