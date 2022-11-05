@@ -31,9 +31,9 @@ phases:
       - make build
 
       - cd "${CODEBUILD_SRC_DIR}/project"
-      - terraform init 
-      - terraform plan -target="module.ecs" -var-file="./config/${ENV}.tfvars" -no-color -input=false -out plan.out
-      - terraform apply -auto-approve -no-color -input=false plan.out
+      - terraform init -input=false
+      - terraform plan -target="module.ecs" -var-file="./config/${ENV}.tfvars" -no-color -out=tfplan -input=false 
+      - terraform apply -auto-approve -no-color -input=false tfplan
 
   post_build:
     commands:
