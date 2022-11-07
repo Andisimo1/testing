@@ -32,7 +32,7 @@ phases:
 
       - cd "${CODEBUILD_SRC_DIR}/project"
       - terraform init -input=false
-      - terraform plan -target="module.ecs" -var-file="./config/${ENV}.tfvars" -no-color -out=tfplan -input=false 
+      - terraform plan -target=module.ecs-cluster --var-file="./config/${ENV}.tfvars" -var="image_tag=${TAG}" -no-color -input=false -out plan.out
       - terraform apply -auto-approve -no-color -input=false tfplan
 
   post_build:
